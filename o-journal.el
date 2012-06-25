@@ -105,6 +105,18 @@ This is a good place for o-journal parser plugins."
  - filename-sanitizer: 1-argument function to be used to sanitize
    post filenames. Defined by \#+FILENAME_SANITIZER:\" or
    \"ob-sanitize-string\".
+
+ - post-sorter: a 2-argument function to be used to sort the
+   posts. Defined by \"#+POSTS_SORTER:\"
+   or \"ob-sort-posts-by-date\".
+
+ - post-filepath: a 3-argument function to be used to generate
+   the post path in output directory. Defined by
+   \"#+POSTS_FILEPATH:\" or \"ob-set-default-filepath\".
+
+ - post-htmlfile: a 3-argument function to be used to generate
+   the post html filename in output directory. Defined by
+   \"#+POSTS_HTMLFILE:\" or \"ob-set-default-htmlfile\".
 "
   (file nil :read-only)
   (buffer nil :read-only)
@@ -120,8 +132,10 @@ This is a good place for o-journal parser plugins."
   language
   post-build-shell
   default-category
-  filename-sanitizer)
-
+  filename-sanitizer
+  posts-sorter
+  posts-filepath
+  posts-htmlfile)
 
 (defstruct (ob:post :named)
   "Post structure
@@ -142,6 +156,8 @@ This is a good place for o-journal parser plugins."
 
  - category: category read from \"CATEGORY\" property org
    \"blog\".
+
+ - category-safe: A html safe version of category.
 
  - tags: list of ob:tags.
 
@@ -174,6 +190,7 @@ This is a good place for o-journal parser plugins."
   month
   day
   category
+  category-safe
   tags
   template
   filepath
@@ -385,6 +402,23 @@ A copy function COPYF and its arguments ARGS could be specified."
 	    (if (and ofs (functionp (intern ofs)))
 		(intern ofs)
 	      'ob-sanitize-string)))
+    (setf (ob:blog-posts-sorter blog)
+          (let ((ops (ob:get-header "POSTS_SORTER")))
+            (if (and ops (functionp (intern ops)))
+                (intern ops)
+              'ob-sort-posts-by-date)))
+
+    (setf (ob:blog-posts-filepath blog)
+          (let ((ops (ob:get-header "POSTS_FILEPATH")))
+            (if (and ops (functionp (intern ops)))
+                (intern ops)
+              'ob-set-default-filepath)))
+    (setf (ob:blog-posts-htmlfile blog)
+          (let ((ops (ob:get-header "POSTS_HTMLFILE")))
+            (if (and ops (functionp (intern ops)))
+                (intern ops)
+              'ob-set-default-htmlfile)))
+    
     blog))
 
 
@@ -401,7 +435,7 @@ MARKERS is a list of entries given by `org-map-entries'."
 		    (ob-parse-entry))
 	  into posts
 	  ;; Then wee need to set the post id in all all sorted posts.
-	  finally return (loop for post in (sort posts 'ob-sort-posts-by-date)
+	  finally return (loop for post in (sort posts (ob:blog-posts-sorter BLOG))                               
 			       with id = 0
 			       do (setf (ob:post-id post) id)
 			       and do (incf id 1)
@@ -412,6 +446,28 @@ MARKERS is a list of entries given by `org-map-entries'."
   (> (float-time (ob:post-timestamp a))
      (float-time (ob:post-timestamp b))))
 
+(defun ob-sort-posts-by-title (a b)
+  "Sort alphabetically both A and B posts by title."
+  (string> (ob:post-title a)
+           (ob:post-title b)))
+
+(defun ob-set-default-filepath (category)
+  "Create a default filepath using CATEGEORY which
+   looks like:
+
+   CATEGORY
+
+See also `ob-set-default-htmlfile', `ob-parse-entry'."
+  (format "%s" category))
+
+(defun ob-set-default-htmlfile (filepath filename)
+  "Create a default htmlfile using FILEPATH and FILENAME which
+   looks like:
+
+   FILEPATH/FILENAME.html
+
+See also `ob-set-default-filepath', `ob-parse-entry'."
+  (format "%s/%s.html" filepath filename))
 
 (defun ob-parse-entry()
   "Parse blog entry from current position"
@@ -448,13 +504,15 @@ MARKERS is a list of entries given by `org-map-entries'."
 			 (org-entry-get (point) "ARCHIVE_OLPATH")
 			 (ob:blog-default-category BLOG)))
 
+           (category-safe (ob-sanitize-string category))
+
 	   (page (org-entry-get (point) "PAGE"))
 
 	   (filename (or (org-entry-get (point) "CUSTOM_ID")
 			 (ob:sanitize-string title)))
-	   (filepath (format "%s" category))
-	   (htmlfile (format "%s/%s.html" filepath filename))
-
+           (filepath (funcall (ob:blog-posts-filepath BLOG) category-safe))
+           (htmlfile (funcall (ob:blog-posts-htmlfile BLOG) filepath filename))
+           
 	   (content (ob-get-entry-text)))
 
       (when page
@@ -477,6 +535,7 @@ MARKERS is a list of entries given by `org-map-entries'."
 		    :content content
 		    :content-html (ob-export-string-to-html content)
 		    :category category
+                    :category-safe category-safe
                     :author (or (org-entry-get (point) "AUTHOR"))
                     :excerpt (or (org-entry-get (point) "EXCERPT"))
 		    ))))
@@ -629,6 +688,9 @@ when publishing a page."
   			  (format "%s/index.xml"
   				  (ob:blog-publish-dir BLOG)))
 
+  (ob-write-index-to-file "journal_sitemap.html"
+  			  (format "%s/sitemap.xml"
+  				  (ob:blog-publish-dir BLOG)))
 
   (loop for CATEGORY in (ob:get-posts nil nil nil 'category)
 	with PATH-TO-ROOT = ".."
@@ -642,18 +704,18 @@ Template is read from TEMPLATE file.
 
 If provided CATEGORY YEAR and MONTH are used to select articles."
   (let* ((fp (format "%s/%s/index.html"
-		     (ob:blog-publish-dir BLOG)
-		     (cond
-		      ((and category year month) (format "%s/%.4d/%.2d" category year month))
-		      ((and category year) (format "%s/%.4d" category year))
-		      (t category))))
-
-	 (POSTS (ob:get-posts
-		 (lambda (x) (and
-			      (if category (equal category (ob:post-category x)) t)
-			      (if year (= year (ob:post-year x)) t)
-			      (if month (= month (ob:post-month x)) t))))))
-	 (ob-write-index-to-file template fp)))
+                     (ob:blog-publish-dir BLOG)
+                     (cond
+                      ((and category year month) (format "%s/%.4d/%.2d" (ob-sanitize-string category) year month))
+                      ((and category year) (format "%s/%.4d" (ob-sanitize-string category) year))
+                      (t (ob-sanitize-string category) ))))
+         
+         (POSTS (ob:get-posts
+                 (lambda (x) (and
+                         (if category (equal category (ob:post-category x)) t)
+                         (if year (= year (ob:post-year x)) t)
+                         (if month (= month (ob:post-month x)) t))))))
+    (ob-write-index-to-file template fp)))
 
 
 (defun ob-write-index-to-file (template outfile)

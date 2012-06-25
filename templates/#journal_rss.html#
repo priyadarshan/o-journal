@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><lisp>(ob:blog-title BLOG)</lisp></title>
+  <link href="<lisp>(ob:get-header "URL")</lisp>/index.xml" rel="self" />
+  <link href="<lisp>(ob:get-header "URL")</lisp>"/>
+  <updated><lisp>(ob:format-date (ob:get-header "DATE"))</lisp></updated>
+  <id><lisp>(ob:get-header "URL")</lisp>/index.xml</id>
+  <lisp>
+    (loop for p in (ob:get-posts nil 12)
+    do (progn
+    (insert "<entry>"
+    (format "<title type=\"html\">%s</title>" (ob:post-title p))
+    (format "<author><name>%s</name></author>" (ob:get-header "AUTHOR"))
+    (format "<link href=\"%s/%s\"/>" (ob:get-header "URL") (ob:post-htmlfile p))
+    (format "<updated>%s</updated>" (ob:format-date (ob:post-timestamp p)))
+    (format "<published>%s</published>" (ob:format-date (ob:post-timestamp p)))
+    (format "<id>%s</id>" (ob:post-htmlfile p)))
+
+    (loop for tag in (ob:post-tags p)
+    do (insert (format "<category scheme=\"/categories/%s.html\" term=\"%s\" label=\"%s\"/>"
+    (ob:tags-safe tag) (ob:tags-name tag) (ob:tags-name tag))))
+
+    (insert
+    (format "<content type=\"html\">%s</content>" (htmlize-protect-string(ob:post-content-html p)))
+    "</entry>")))
+  </lisp>
+</feed>
+
+
+
+<lisp>(loop for POST in POSTS
+ do (ob:insert-template "debug_post.html"))
+</lisp>
+
+<lisp>(loop for POST in STATIC
+  do (ob:insert-template "debug_post.html"))
+</lisp>
+
+
+
+<?xml version='1.0' encoding='UTF-8'?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+	<url>
+		<loc><lisp>(ob:get-header "URL")</lisp>/</loc>
+		<lastmod><lisp>(ob:format-date (ob:get-header "DATE"))</lisp></lastmod>
+		<changefreq>daily</changefreq>
+		<priority>1.0</priority>
+	</url>
+
+        <lisp>(loop for POST in STATIC
+          
+
+
+          do (progn
+          (insert "<url>"
+            (format "<loc>%s/%s</loc>" (ob:get-header "URL") (ob:post-htmlfile p))
+            (format "<lastmod>%s</lastmod> (ob:format-date (ob:post-timestamp p)))
+                   
+            (ob:tags-safe tag) (ob:tags-name tag) (ob:tags-name tag))))
+            
+            (insert
+            (format "<content type=\"html\">%s</content>" (htmlize-protect-string(ob:post-content-html p)))
+            "</entry>"))
+
+
+          )
+
+	
+		<loc>{{site.url}}/{{section}}/</loc>
+		<lastmod>{{site.time | date_to_xmlschema}}</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.8</priority>
+	</url>
+
+        </lisp>
+
+
+
+
+	{% for post in site.posts %}
+	<url>
+		<loc>{{site.url}}{{post.url}}</loc>
+		<lastmod>{{post.date | date_to_xmlschema}}</lastmod>
+		<changefreq>weekly</changefreq>
+		<priority>0.6</priority>
+	</url>
+	{% endfor %}
+</urlset>
