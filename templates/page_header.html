@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="<lisp>(ob:blog-language BLOG)</lisp>">
+<head>
+<meta charset="utf-8" />
+<title><lisp>(if (boundp 'POST) (ob:post-title POST) (ob:blog-title BLOG))</lisp></title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="stylesheet" href="<lisp>(ob:path-to-root)</lisp>/style/style.css"/>
+<link rel="alternate" type="application/atom+xml" title="Luvah" href="<lisp>(ob:path-to-root)</lisp>/index.xml">
+<link rel="shortcut icon" href="<lisp>(ob:path-to-root)</lisp>/style/images/favicon.ico"/>
+<script language="javascript" src="<lisp>(ob:path-to-root)</lisp>/style/highlight.js"></script>
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+<body>
+ <header>
+  <img src="<lisp>(ob:path-to-root)</lisp>/style/images/logo.png" alt="Luvah"/>
+  <form method="get" id="search" action="http://duckduckgo.com/">
+   <input type="hidden" name="sites" value="mimes.is"/>
+   <input type="hidden" name="k8" value="#444444"/>
+   <input type="hidden" name="k9" value="#D51920"/>
+   <input type="hidden" name="kt" value="h"/>
+   <input type="text" name="q" maxlength="255"/>
+   <input type="submit" value="Search"/>
+  </form>
+  <nav id="nav">
+   <lisp>(ob:post-content-html (ob:get-snippet "Navigation"))</lisp>
+  </nav>
+  <script language="javascript">setPage()</script>
+ </header>
+<article>

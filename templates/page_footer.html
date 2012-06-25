@@ -1,0 +1,44 @@
+</article>
+<aside>
+<section>
+<h4><a href="<lisp>(ob:path-to-root)</lisp>/One/index.html">Luvah Issue One is out!</a></h4>
+<img src="<lisp>(ob:path-to-root)</lisp>/style/images/sun.png" alt="" /><p>The latest issue of Luvah is now online. <a href="<lisp>(ob:path-to-root)</lisp>/support.html">Support our work!</a></p>
+<p><a href="<lisp>(ob:path-to-root)</lisp>/One/index.html">read the issue »</a></p>
+</section>
+<section>
+<h4><a href="http://eepurl.com/jxcZj">Subscribe</a></h4>
+<div id="mc_embed_signup">
+<form action="http://mimes.us4.list-manage.com/subscribe/post?u=a2df12cb01d7620e9c9cc4664&amp;id=764b96c43a" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+<input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
+<div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+</form>
+</div>
+</section>
+<section>
+<h4><a href="<lisp>(ob:path-to-root)</lisp>/support.html">Support the Journal</a></h4>
+<img src="<lisp>(ob:path-to-root)</lisp>/style/images/sun.png" alt="" /><p>Make a donation to <em>Luvah</em> or become a sustainer to help cover our day to day costs.</p>
+<p><a href="<lisp>(ob:path-to-root)</lisp>/support.html">find out more »</a></p>
+</section>
+<nav>
+<h4>Browse Categories</h4>
+<lisp>(ob:insert-template "nav_tag-cloud.html")</lisp>
+</nav>
+<nav>
+<h4>Current Issue</h4>
+<ul>
+<lisp>
+  (loop for p in (ob:get-posts nil 12)
+  do (insert (format "<li><a href=\"%s/%s\">%s</a></li> "
+  (ob:path-to-root)
+  (ob:post-htmlfile p)
+  (ob:post-title p)
+  )))
+</lisp>
+</ul>
+</nav>
+</aside>
+<footer>
+<lisp>(ob:post-content-html (ob:get-snippet "Copyright"))</lisp>
+</footer>
+</body>
+</html>

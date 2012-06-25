@@ -1,0 +1,8 @@
+<lisp>(ob:insert-template "page_header.html")</lisp>
+<header>
+<hgroup>
+<h2><lisp>(ob:post-title POST)</lisp></h2>
+</hgroup>
+</header>
+<lisp>(ob:post-content-html POST)</lisp>
+<lisp>(ob:insert-template "page_footer.html")</lisp>

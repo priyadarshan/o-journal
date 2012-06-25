@@ -1,0 +1,36 @@
+<lisp>(ob:insert-template "page_header.html")</lisp>
+<header>
+<hgroup>
+<h2><lisp>(ob:post-title POST)</lisp></h2>
+<h3><lisp>(ob:post-author POST)</lisp></h3>
+</hgroup>
+</header>
+<div id="share">
+<ul>
+<li><a title="Share this post on Twitter" id="share_twitter" href="https://twitter.com/share?url=<lisp>(ob:get-header "URL")</lisp>/<lisp>(ob:post-htmlfile POST)</lisp>&text=<lisp>(ob:post-title POST)</lisp>"></a></li>
+<li><a title="Share this post on Facebook" id="share_facebook" href="https://facebook.com/sharer.php?u=<lisp>(ob:get-header "URL")</lisp>/<lisp>(ob:post-htmlfile POST)</lisp>&t=<lisp>(ob:post-title POST)</lisp>"></a></li>
+<li><a title="Share this post on Google+" id="share_google_plus" href="https://plusone.google.com/_/+1/confirm?hl=en&url=<lisp>(ob:get-header "URL")</lisp>/<lisp>(ob:post-htmlfile POST)</lisp>"></a></li>
+</ul>
+</div> 
+<lisp>(ob:post-content-html POST)</lisp>
+<div id="previous_next">
+  <lisp>
+   (progn
+   (let ((ppost (ob:get-post-by-id (1+ (ob:post-id POST)))))
+   (if ppost
+   (insert (format "<a id=\"previous\" href=\"%s/%s\"><span>&larr; Previous article</span><br /><i>%s</i></a>"
+   (ob:path-to-root)
+   (ob:post-htmlfile ppost)
+   (ob:post-title ppost)))
+   ))
+   (let ((npost (ob:get-post-by-id (1- (ob:post-id POST)))))
+   (if npost
+   (insert (format "<a id=\"next\" href=\"%s/%s\"><span>Next article &rarr;</span><br /><i>%s</i></a>"
+   (ob:path-to-root)
+   (ob:post-htmlfile npost)
+   (ob:post-title npost)))
+   )))
+ </lisp>
+</div>
+<div style="clear:both;"></div>
+<lisp>(ob:insert-template "page_footer.html")</lisp>

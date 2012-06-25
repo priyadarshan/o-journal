@@ -1,0 +1,20 @@
+<nav>
+<h2>Luvah Number <lisp>CATEGORY</lisp></h2>
+<aside>
+<p><img src="<lisp>(ob:path-to-root)</lisp>/style/images/<lisp>CATEGORY</lisp>.jpg" alt=""/></p>
+</aside>
+<ul>
+  <lisp>
+    (loop for post in POSTS
+    do (insert (format "<li><a href=\"%s/%s\">%s</a><br/><span>%s</span></li>"
+    (ob:path-to-root)
+    (or (ob:post-htmlfile post) "htmlfile")
+    (or (ob:post-title post) "title")
+    (or (ob:post-author post) "author")
+    ))
+)
+  </lisp>
+</ul>
+</nav>
+
+

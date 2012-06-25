@@ -1,0 +1,6 @@
+<ul>
+  <lisp>
+    (loop for tag in TAGS
+    do (insert (format "<li><a href=\"%s/categories/%s.html\">%s</a></li> " (ob:path-to-root)  (ob:tags-safe tag) (ob:tags-name tag))))
+  </lisp>
+</ul>
