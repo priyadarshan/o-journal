@@ -1,0 +1,15 @@
+<lisp>(ob:insert-template "page_header.html")</lisp>
+<h2>Articles</h2>
+<lisp>
+  (progn
+  (loop for post in POSTS
+  do (when (mapcar 'ob:tags-safe (ob:post-tags post)))
+  (insert (format "
+  <section>
+    <h3><a href=\"%s/%s\" title=\"%s\">%s</a></h3>
+    <h4>%s</h4>
+    <p>%s <a href=\"%s/%s\" title=\"%s\">Read more &rarr;</a></p>
+    <p><cite><a href=\"%s/%s/index.html\">From <em>Luvah %s</em></a></cite></p>
+" (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:post-title post) (ob:post-author post) (ob:post-excerpt post) (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:path-to-root) (ob:category-safe (ob:post-category post)) (ob:category-name (ob:post-category post)) )"</section>"))))
+</lisp>
+<lisp>(ob:insert-template "page_footer.html")</lisp>    
