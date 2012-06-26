@@ -157,8 +157,6 @@ This is a good place for o-journal parser plugins."
  - category: category read from \"CATEGORY\" property org
    \"blog\".
 
- - category-safe: A html safe version of category.
-
  - tags: list of ob:tags.
 
  - template: template to use for current post read from
@@ -181,7 +179,9 @@ This is a good place for o-journal parser plugins."
 
  - author: Post author.
 
- - excerpt: Post excerpt."
+ - excerpt: Post excerpt.
+
+ - sitemap: Whether to publish in sitemap."
   
   id
   title
@@ -190,7 +190,6 @@ This is a good place for o-journal parser plugins."
   month
   day
   category
-  category-safe
   tags
   template
   filepath
@@ -200,7 +199,8 @@ This is a good place for o-journal parser plugins."
   content
   content-html
   author
-  excerpt)
+  excerpt
+  sitemap)
 
 
 (defstruct (ob:tags :named)
@@ -211,6 +211,13 @@ This is a good place for o-journal parser plugins."
  - count: how many time the tag is used.
  - size: the font size in percent."
   name safe count size)
+
+(defstruct (ob:category :named)
+  "Category structure with following slots:
+
+  - name: string defying the category name.
+  - safe: web safe category name for URL."
+  name safe)
 
 ;;;###autoload
 ;;;###autoload
@@ -503,9 +510,7 @@ See also `ob-set-default-filepath', `ob-parse-entry'."
 			 (car (last (org-get-outline-path)))
 			 (org-entry-get (point) "ARCHIVE_OLPATH")
 			 (ob:blog-default-category BLOG)))
-
-           (category-safe (ob-sanitize-string category))
-
+           (category-safe (ob:sanitize-string category))
 	   (page (org-entry-get (point) "PAGE"))
 
 	   (filename (or (org-entry-get (point) "CUSTOM_ID")
@@ -534,10 +539,12 @@ See also `ob-set-default-filepath', `ob-parse-entry'."
 				  (if page "journal_static.html" "journal_post.html"))
 		    :content content
 		    :content-html (ob-export-string-to-html content)
-		    :category category
-                    :category-safe category-safe
+                    :category (make-ob:category
+                               :name category
+                               :safe category-safe)
                     :author (or (org-entry-get (point) "AUTHOR"))
                     :excerpt (or (org-entry-get (point) "EXCERPT"))
+                    :sitemap (or (org-entry-get (point) "SITEMAP"))
 		    ))))
 
 
@@ -706,13 +713,19 @@ If provided CATEGORY YEAR and MONTH are used to select articles."
   (let* ((fp (format "%s/%s/index.html"
                      (ob:blog-publish-dir BLOG)
                      (cond
-                      ((and category year month) (format "%s/%.4d/%.2d" (ob-sanitize-string category) year month))
-                      ((and category year) (format "%s/%.4d" (ob-sanitize-string category) year))
-                      (t (ob-sanitize-string category) ))))
+                      ((and category year month) (format "%s/%.4d/%.2d"
+                                                         (ob:category-safe category)
+                                                         year month))
+                      ((and category year) (format "%s/%.4d"
+                                                   (ob:category-safe category) year))
+                      (t (ob:category-safe category)))))
          
          (POSTS (ob:get-posts
                  (lambda (x) (and
-                         (if category (equal category (ob:post-category x)) t)
+                         (if category (equal
+                                       (ob:category-name category)
+                                       (ob:category-name (ob:post-category x)))
+                           t)
                          (if year (= year (ob:post-year x)) t)
                          (if month (= month (ob:post-month x)) t))))))
     (ob-write-index-to-file template fp)))
@@ -914,7 +927,7 @@ set ISO8601 \"%Y-%m-%dT%TZ\" format would be used."
 	(nth (or nth 0)))
     (nth nth (ob:get-posts (lambda (x)
 			     (equal (or category "blog")
-				    (ob:post-category x)))))))
+				    (ob:category-name (ob:post-category x))))))))
 
 (defun ob:path-to-root ()
   "Return path to site root from `PATH-TO-ROOT' or `POST'
@@ -923,5 +936,21 @@ path-to-root slot."
    ((boundp 'PATH-TO-ROOT) PATH-TO-ROOT)
    ((boundp 'POST) (ob:post-path-to-root POST))
    (t ".")))
+
+(defun ob:lesser (a b)
+  "Emulate `<' in templates."
+  (< a b))
+
+(defun ob:lesser-or-equal (a b)
+  "Emulate `<=' in templates."
+  (<= a b))
+
+(defun ob:greater (a b)
+  "Emulate `>' in templates."
+  (> a b))
+
+(defun ob:greater-or-equal (a b)
+  "Emulate `>=' in templates."
+  (>= a b))
 
 (provide 'o-journal)

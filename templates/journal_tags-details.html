@@ -9,20 +9,7 @@
     <h3><a href=\"%s/%s\" title=\"%s\">%s</a></h3>
     <h4>%s</h4>
     <p>%s <a href=\"%s/%s\" title=\"%s\">Read more &rarr;</a></p>
-    <p><cite><a href=\"%s/%s/index.html\">From <em>Luvah Number %s</em></a></cite></p>
-" (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:post-title post) (ob:post-author post) (ob:post-excerpt post) (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:path-to-root) (ob:post-category-safe post) (ob:post-category post) )"</section>"))))
+    <p><cite><a href=\"%s/%s/index.html\">From <em>Luvah %s</em></a></cite></p>
+" (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:post-title post) (ob:post-author post) (ob:post-excerpt post) (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:path-to-root) (ob:category-safe (ob:post-category post)) (ob:category-name (ob:post-category post)) )"</section>"))))
 </lisp>
 <lisp>(ob:insert-template "page_footer.html")</lisp>    
-
-
-
-
-
-        
-        
-                
-                
-        
-        
-
-
