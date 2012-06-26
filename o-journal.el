@@ -20,6 +20,7 @@
 (eval-when-compile
   (require 'cl nil t)
   (require 'browse-url nil t))
+(require 'htmlize nil t)
 (require 'time-stamp nil t)
 (require 'org-xhtml nil t)
 (require 'dired-sync nil t)
@@ -887,7 +888,7 @@ Returns only fist match except if ALL is defined."
 	  (widen)
 	  (goto-char (point-min))
 	  (let (values)
-	    (while (re-search-forward (format "^#\\+%s:?[ \t]+\\(.*\\)" header) nil t)
+            (while (re-search-forward (format "^#\\+%s:?[ \t]*\\(.*\\)" header) nil t)
 	      (add-to-list 'values (substring-no-properties (match-string 1))))
 	    (if all
 		values
