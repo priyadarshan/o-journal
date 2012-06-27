@@ -21,7 +21,7 @@
     (ob:tags-safe tag) (ob:tags-name tag) (ob:tags-name tag))))
 
     (insert
-    (format "<content type=\"html\">%s</content>" (htmlize-protect-string(ob:post-content-html p)))
+    (format "%s" (ob:get-post-excerpt p 80 "..."))
     "</entry>")))
   </lisp>
 </feed>

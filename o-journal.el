@@ -21,6 +21,8 @@
   (require 'cl nil t)
   (require 'browse-url nil t))
 (require 'htmlize nil t)
+(require 'sgml-mode nil t)
+(require 'html2text nil t)
 (require 'time-stamp nil t)
 (require 'org-xhtml nil t)
 (require 'dired-sync nil t)
@@ -953,5 +955,24 @@ path-to-root slot."
 (defun ob:greater-or-equal (a b)
   "Emulate `>=' in templates."
   (>= a b))
+
+(defun ob:get-post-excerpt (post &optional words ellipsis)
+  "Return the first WORDS from POST html content.
+
+The return string would be unformatted plain text postfixed by
+ELLIPSIS if defined.."
+  (with-temp-buffer
+    (insert (ob:post-content-html post))
+    (let ((words (or words 100))
+(ellipsis (or ellipsis ""))
+(html2text-remove-tag-list
+(loop for tag in html-tag-alist
+collect (car tag))))
+      (html2text)
+      (goto-char (point-min))
+      (loop for x from 0 below words do (forward-word))
+      (concat
+       (buffer-substring-no-properties (point-min) (point))
+       ellipsis))))
 
 (provide 'o-journal)

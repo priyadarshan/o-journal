@@ -3,18 +3,15 @@
 <aside>
 <p><img src="<lisp>(ob:path-to-root)</lisp>/style/images/<lisp>(ob:category-safe CATEGORY)</lisp>.jpg" alt=""/></p>
 </aside>
-<ul>
-  <lisp>
-    (loop for TAG in TAGS
-    do (insert (format "<h3>%s</h3>" (ob:tags-name TAG)))
-    (progn
-    (loop for post in POSTS
-    do (when (member (ob:tags-safe TAG) (mapcar 'ob:tags-safe (ob:post-tags post)))
-    (insert (format "<li><a href=\"%s/%s\">%s</a><br/><span>%s</span></li>"
-    (ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:post-author post)
-    ))
-    ))))
-  </lisp>
-</ul>
+<lisp>
+(loop for TAG in TAGS
+      do (progn
+(insert (format "<h3>%s</h3><ul>" (ob:tags-name TAG)))
+(loop for post in POSTS
+do (when (member (ob:tags-safe TAG) (mapcar 'ob:tags-safe (ob:post-tags post)))
+(insert (format "<li><a href=\"%s/%s\">%s</a><br/><span>%s</span></li>"
+(ob:path-to-root) (ob:post-htmlfile post) (ob:post-title post) (ob:post-author post)
+))))
+(insert "</ul>")))
+</lisp>
 </nav>
-
