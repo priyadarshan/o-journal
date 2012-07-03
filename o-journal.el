@@ -8,7 +8,7 @@
 ;; Version: 1.2
 ;; URL: https://github.com/fravashi/o-journal
 ;; Created: 2012-06-24
-;; Last changed: Sun Jun 24 2012
+;; Last changed: 2012-07-03 16:57:20
 ;; Licence: WTFPL, grab your copy here: http://sam.zoy.org/wtfpl/
 ;; Based on: o-blog.el by Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 ;;
@@ -260,7 +260,10 @@ defined, or interactivelly called with `prefix-arg'.
 			(get-file-buffer file)
 			(find-file file))
     (run-hooks 'o-journal-before-publish-hook)
-    (let* ((start-time (current-time)) ;; for statistic purposes only
+    (let* (;; Make sure `org-todo-keyword' is not set to a particular value
+           ;; by user.
+           (org-todo-keywords (default-value 'org-todo-keywords))
+           (start-time (current-time)) ;; for statistic purposes only
 	   ;; make sure we are on the correct directory.
 	   (default-directory (file-name-directory file))
 	   STATIC
