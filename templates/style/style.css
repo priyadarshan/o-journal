@@ -43,6 +43,7 @@ blockquote:before,blockquote:after,q:before,q:after{content:"";content:none;}
 blockquote p{margin-bottom:0;}
 blockquote{background-color:#f2f2f2;border-top:0.063em solid #dddddd;border-bottom:0.063em solid #dddddd;padding:0.625em 0.938em;}
 blockquote>pre{display:table;font-family:inherit;margin:0 auto 1.5em;font-size:1em;line-height:1.5;}
+.verse{display:table;font-family:inherit;margin:0 auto 1.5em;font-size:1em;line-height:1.5;}
 blockquote[title]:after{display:block;font-size:0.875em;line-height:1.5em;margin-top:0.750em;margin-bottom:1.5em;content:"\2014""\00A0"attr(title);text-align:right;font-style:italic;color:#999999;}
 blockquote>p>cite{display:block;font-size:0.875em;line-height:1.5em;margin-bottom:1.5em;text-align:right;font-style:italic;color:#999999;}
 blockquote>p>cite:before{content:"\2014""\00A0";}
